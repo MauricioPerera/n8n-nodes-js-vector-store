@@ -1,0 +1,73 @@
+{
+  "name": "Vector Store — Hybrid Search (BM25 + vector)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trg-04",
+      "name": "When clicking Execute",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "content": "## Hybrid Search (BM25 + vector)\n\nUpserts documents with **both** a vector and a **Text** field. Hybrid Search fuses semantic similarity with BM25 keyword matching (RRF), so a document that matches by **keyword** but not by vector still surfaces.\n\nQuery: vector close to `d0`, text `\"sapphire\"`. `d3` (text match, orthogonal vector) rises to the top.\n\n**Before running:** assign a **Vector Store API** credential with **Dimension = 8**.",
+        "height": 280,
+        "width": 400
+      },
+      "id": "note-04",
+      "name": "How to use",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-40, -320]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  { json: { id: 'd0', vector: [1,0,0,0,0,0,0,0], text: 'apple fruit sweet' } },\n  { json: { id: 'd1', vector: [0.95,0.1,0,0,0,0,0,0], text: 'banana fruit yellow' } },\n  { json: { id: 'd3', vector: [0,0,0,1,0,0,0,0], text: 'sapphire gem blue stone' } }\n];"
+      },
+      "id": "code-04",
+      "name": "Documents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "collection": "docs",
+        "id": "={{ $json.id }}",
+        "vector": "={{ $json.vector }}",
+        "text": "={{ $json.text }}"
+      },
+      "id": "vs-upsert-04",
+      "name": "Upsert (vector + text)",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [440, 0],
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    },
+    {
+      "parameters": {
+        "operation": "hybridSearch",
+        "collection": "docs",
+        "queryVector": "[1,0,0,0,0,0,0,0]",
+        "queryText": "sapphire",
+        "limit": 3,
+        "mode": "rrf"
+      },
+      "id": "vs-hybrid-04",
+      "name": "Hybrid Search",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [680, 0],
+      "executeOnce": true,
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    }
+  ],
+  "connections": {
+    "When clicking Execute": { "main": [[{ "node": "Documents", "type": "main", "index": 0 }]] },
+    "Documents": { "main": [[{ "node": "Upsert (vector + text)", "type": "main", "index": 0 }]] },
+    "Upsert (vector + text)": { "main": [[{ "node": "Hybrid Search", "type": "main", "index": 0 }]] }
+  },
+  "settings": {}
+}

@@ -1,0 +1,87 @@
+{
+  "name": "Vector Store — ANN Index (IVF, for large collections)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trg-05",
+      "name": "When clicking Execute",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "content": "## ANN Index (IVF)\n\nFor **large** collections, build an approximate nearest-neighbour index once, then run `Search` with **Use ANN Index** on for a speedup.\n\nFlow: upsert vectors → **Build ANN Index** → **Search (Use ANN Index)**.\n\n**Notes:**\n- Build is O(K·N·dim) — can take minutes on large collections. Run it explicitly, not per query.\n- The index is a **snapshot**: rebuild after large inserts.\n- ANN search is **cosine-only** (metric/filter ignored).\n- Pointless on small collections (brute-force is already fast). This toy example just shows the wiring.\n\n**Before running:** assign a **Vector Store API** credential with **Dimension = 8**.",
+        "height": 360,
+        "width": 420
+      },
+      "id": "note-05",
+      "name": "How to use",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-40, -420]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = [];\nfor (let i = 0; i < 50; i++) {\n  const v = [Math.random(), Math.random(), Math.random(), Math.random(), 0, 0, 0, 0];\n  rows.push({ json: { id: 'v' + i, vector: v } });\n}\nreturn rows;"
+      },
+      "id": "code-05",
+      "name": "Vectors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "collection": "big",
+        "id": "={{ $json.id }}",
+        "vector": "={{ $json.vector }}"
+      },
+      "id": "vs-upsert-05",
+      "name": "Upsert Vectors",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [440, 0],
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    },
+    {
+      "parameters": {
+        "operation": "buildAnnIndex",
+        "collection": "big",
+        "numClusters": 8,
+        "numProbes": 3
+      },
+      "id": "vs-build-05",
+      "name": "Build ANN Index",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [660, 0],
+      "executeOnce": true,
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "collection": "big",
+        "queryVector": "[0.5,0.5,0.5,0.5,0,0,0,0]",
+        "limit": 5,
+        "useIndex": true
+      },
+      "id": "vs-search-05",
+      "name": "Search (Use ANN Index)",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [880, 0],
+      "executeOnce": true,
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    }
+  ],
+  "connections": {
+    "When clicking Execute": { "main": [[{ "node": "Vectors", "type": "main", "index": 0 }]] },
+    "Vectors": { "main": [[{ "node": "Upsert Vectors", "type": "main", "index": 0 }]] },
+    "Upsert Vectors": { "main": [[{ "node": "Build ANN Index", "type": "main", "index": 0 }]] },
+    "Build ANN Index": { "main": [[{ "node": "Search (Use ANN Index)", "type": "main", "index": 0 }]] }
+  },
+  "settings": {}
+}

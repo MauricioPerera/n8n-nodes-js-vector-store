@@ -17,6 +17,14 @@ Importable n8n workflow templates for the **Vector Store** node (`n8n-nodes-js-v
 | `01-index-and-search.json` | Upsert toy vectors with metadata, then a similarity **Search** (top-1 = exact match). Self-contained, runnable. |
 | `02-filtered-search.json` | Search combined with a **Mongo-style metadata filter** (`category` + `price < 100`). Self-contained, runnable. |
 | `03-rag-retrieval.json` | **RAG retrieval pattern**: embed a query string via your embeddings provider → Vector Store Search. Skeleton — fill in your embeddings API + matching Dimension. |
+| `04-hybrid-search.json` | **Hybrid Search**: upsert vector + **text**, then fuse semantic + BM25 keyword search (a keyword-only match surfaces). Self-contained. |
+| `05-ann-index.json` | **ANN index (IVF)**: build an approximate index, then `Search` with **Use ANN Index** — for large collections. Shows the wiring. |
+
+### Other v1.1.0 features (no template needed)
+
+- **Quantization** — set on the **credential** (`indexType`: `float32` / `int8` / `binary` / `polar3`), not in a workflow. Pick `int8` for ~3x smaller storage; keep `float32` for best recall. A collection lives under one format.
+- **Matryoshka Search** — operation `Matryoshka Search` with a `stages` array (progressive dimensional search); useful with Matryoshka-trained embeddings.
+- **Search Across** — operation `Search Across` to query several collections at once (store the source collection in metadata if you need to know where each hit came from).
 
 ## Notes
 
