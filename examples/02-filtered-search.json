@@ -1,0 +1,72 @@
+{
+  "name": "Vector Store — Filtered Search",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trg-02",
+      "name": "When clicking Execute",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "content": "## Vector Store — Filtered Search\n\nUpserts products (dim 4) with metadata, then searches with a **Mongo-style metadata filter** (`category = electronics AND price < 100`).\n\n**Before running:** assign a **Vector Store API** credential with **Dimension = 4** to both nodes.\n\n> Filters are applied **after** scoring, so raise `limit` when filters are very selective.",
+        "height": 260,
+        "width": 380
+      },
+      "id": "note-02",
+      "name": "How to use",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-40, -300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  { json: { id: 'p1', vector: [1, 0, 0, 0], metadata: { name: 'Keyboard', category: 'electronics', price: 49 } } },\n  { json: { id: 'p2', vector: [0.9, 0.1, 0, 0], metadata: { name: 'Monitor', category: 'electronics', price: 199 } } },\n  { json: { id: 'p3', vector: [0.8, 0.2, 0, 0], metadata: { name: 'Mouse', category: 'electronics', price: 19 } } },\n  { json: { id: 'p4', vector: [1, 0, 0, 0], metadata: { name: 'Notebook', category: 'stationery', price: 5 } } }\n];"
+      },
+      "id": "code-02",
+      "name": "Products",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "collection": "products",
+        "id": "={{ $json.id }}",
+        "vector": "={{ $json.vector }}",
+        "metadata": "={{ $json.metadata }}"
+      },
+      "id": "vs-upsert-02",
+      "name": "Upsert Products",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [440, 0],
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "collection": "products",
+        "queryVector": "[1, 0, 0, 0]",
+        "limit": 10,
+        "filter": "={{ { \"category\": \"electronics\", \"price\": { \"$lt\": 100 } } }}"
+      },
+      "id": "vs-search-02",
+      "name": "Search (electronics < 100)",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [660, 0],
+      "executeOnce": true,
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    }
+  ],
+  "connections": {
+    "When clicking Execute": { "main": [[{ "node": "Products", "type": "main", "index": 0 }]] },
+    "Products": { "main": [[{ "node": "Upsert Products", "type": "main", "index": 0 }]] },
+    "Upsert Products": { "main": [[{ "node": "Search (electronics < 100)", "type": "main", "index": 0 }]] }
+  },
+  "settings": {}
+}

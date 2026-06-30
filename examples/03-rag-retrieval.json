@@ -1,0 +1,78 @@
+{
+  "name": "Vector Store — RAG Retrieval (pattern)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trg-03",
+      "name": "When clicking Execute",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "content": "## Vector Store — RAG Retrieval (pattern)\n\nSemantic retrieval: embed a **query string** with your embeddings provider, then run a Vector Store **Search** to get the most relevant documents.\n\n**This is a skeleton — you must fill in 2 things:**\n1. **Embed Query** (HTTP Request): point it at your embeddings API (OpenAI, Cohere, Workers AI…) with your key, and map the response to a `vector` field. Replace the URL/headers/body.\n2. **Vector Store** credential: **Dimension** must equal your model's output size (e.g. 1536 for OpenAI `text-embedding-3-small`, 768 for embeddinggemma).\n\nIndex your documents first (embed each doc → **Upsert**, same as the Index & Search example but with real embeddings).",
+        "height": 360,
+        "width": 420
+      },
+      "id": "note-03",
+      "name": "How to use",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-40, -420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The user's question to retrieve context for.\nreturn [{ json: { query: 'How do I reset my password?' } }];"
+      },
+      "id": "code-03",
+      "name": "Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer YOUR_API_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"model\": \"text-embedding-3-small\", \"input\": $json.query } }}",
+        "options": {}
+      },
+      "id": "http-03",
+      "name": "Embed Query",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 0]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "collection": "docs",
+        "queryVector": "={{ $json.data[0].embedding }}",
+        "limit": 5,
+        "metric": "cosine"
+      },
+      "id": "vs-search-03",
+      "name": "Retrieve Top 5",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [680, 0],
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    }
+  ],
+  "connections": {
+    "When clicking Execute": { "main": [[{ "node": "Query", "type": "main", "index": 0 }]] },
+    "Query": { "main": [[{ "node": "Embed Query", "type": "main", "index": 0 }]] },
+    "Embed Query": { "main": [[{ "node": "Retrieve Top 5", "type": "main", "index": 0 }]] }
+  },
+  "settings": {}
+}

@@ -1,0 +1,71 @@
+{
+  "name": "Vector Store — Index & Search",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trg-01",
+      "name": "When clicking Execute",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "content": "## Vector Store — Index & Search\n\nUpserts 3 toy vectors (dim 4) with metadata, then runs a similarity search.\n\n**Before running:**\n1. Create a **Vector Store API** credential and assign it to both Vector Store nodes.\n2. Set its **Dimension = 4** (must match the toy vectors here) and a **Store Directory** (absolute path).\n\nReal embeddings are higher-dimensional (e.g. 768/1536) — see the RAG example.",
+        "height": 260,
+        "width": 380
+      },
+      "id": "note-01",
+      "name": "How to use",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-40, -300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  { json: { id: 'a', vector: [1, 0, 0, 0], metadata: { title: 'Alpha' } } },\n  { json: { id: 'b', vector: [0, 1, 0, 0], metadata: { title: 'Beta' } } },\n  { json: { id: 'c', vector: [0.9, 0.1, 0, 0], metadata: { title: 'Gamma' } } }\n];"
+      },
+      "id": "code-01",
+      "name": "Documents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "collection": "demo",
+        "id": "={{ $json.id }}",
+        "vector": "={{ $json.vector }}",
+        "metadata": "={{ $json.metadata }}"
+      },
+      "id": "vs-upsert-01",
+      "name": "Upsert Vectors",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [440, 0],
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "collection": "demo",
+        "queryVector": "[1, 0, 0, 0]",
+        "limit": 3
+      },
+      "id": "vs-search-01",
+      "name": "Search",
+      "type": "n8n-nodes-js-vector-store.vectorStore",
+      "typeVersion": 1,
+      "position": [660, 0],
+      "executeOnce": true,
+      "credentials": { "vectorStoreApi": { "id": "REPLACE_ME", "name": "Vector Store API" } }
+    }
+  ],
+  "connections": {
+    "When clicking Execute": { "main": [[{ "node": "Documents", "type": "main", "index": 0 }]] },
+    "Documents": { "main": [[{ "node": "Upsert Vectors", "type": "main", "index": 0 }]] },
+    "Upsert Vectors": { "main": [[{ "node": "Search", "type": "main", "index": 0 }]] }
+  },
+  "settings": {}
+}

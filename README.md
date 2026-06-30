@@ -37,6 +37,8 @@ A single credential **Vector Store API**:
 
 The node is enabled as an **AI tool** (`usableAsTool`). Turn on **Read-only** to let an AI agent **query** the store (Search/Get/Count/List) while write operations (Upsert/Delete/Drop) are rejected — safe for RAG retrieval.
 
+Ready-to-import example workflows (Index & Search, Filtered Search, RAG retrieval) live in [`examples/`](examples/).
+
 ## Notes
 
 - Default search is exact (brute-force): fast up to tens of thousands of vectors. For larger sets, approximate indexing (IVF) and quantization are on the roadmap.
