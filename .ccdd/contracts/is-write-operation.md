@@ -2,7 +2,7 @@
 task: is-write-operation
 intent: Clasificar un id de operacion del Vector Store como escritura o lectura.
 target: D:/Repo/sqlite node/n8n-nodes-js-vector-store/nodes/VectorStore/actions/security.ts
-target_line: 26
+target_line: 27
 language: typescript
 signature: "isWriteOperation(operation: string): boolean"
 tests: D:/Repo/sqlite node/n8n-nodes-js-vector-store/nodes/VectorStore/actions/__tests__/isWriteOperation.test.ts
@@ -10,7 +10,7 @@ test_command: node ../../../node_modules/jest/bin/jest.js --config ../../../jest
 deps_allowed: []
 forbids:
   - clasificar search/get/count/collections como escritura
-  - clasificar set/remove/drop como lectura
+  - clasificar set/remove/drop/buildAnnIndex/dropAnnIndex como lectura
   - mutar el argumento
 budget:
   cyclomatic: 5
@@ -37,8 +37,8 @@ o desconocido.
 
 ## Invariants
 
-- `set` (Upsert), `remove` (Delete), `drop` (Drop Collection) -> `true`.
-- `search`, `get`, `count`, `collections` -> `false`.
+- `set` (Upsert), `remove` (Delete), `drop` (Drop Collection), `buildAnnIndex` (writes `<col>.ivf.json`), `dropAnnIndex` (deletes it) -> `true`.
+- `search`, `get`, `count`, `collections`, `matryoshkaSearch`, `searchAcross` -> `false`.
 - Id desconocido (incluyendo `''`, mayúsculas como `SET`, sinónimos como
   `upsert`/`delete`) -> `false` (default a lectura; el branch `default` del
   router rechaza ids desconocidos por separado, así que un desconocido
@@ -50,6 +50,10 @@ o desconocido.
 - `isWriteOperation('set')` -> `true`
 - `isWriteOperation('remove')` -> `true`
 - `isWriteOperation('drop')` -> `true`
+- `isWriteOperation('buildAnnIndex')` -> `true`
+- `isWriteOperation('dropAnnIndex')` -> `true`
+- `isWriteOperation('matryoshkaSearch')` -> `false`
+- `isWriteOperation('searchAcross')` -> `false`
 - `isWriteOperation('search')` -> `false`
 - `isWriteOperation('collections')` -> `false`
 - `isWriteOperation('')` -> `false`

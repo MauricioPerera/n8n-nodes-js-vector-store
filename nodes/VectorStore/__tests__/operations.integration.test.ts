@@ -3,7 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import { flushStore, openStore } from '../transport/store';
-import type { VectorStore as JSVectorStore } from 'js-vector-store';
+import type { VectorStoreLike } from 'js-vector-store';
 import * as ops from '../actions/operations';
 import type { SearchParams, UpsertParams } from '../actions/operations';
 
@@ -19,7 +19,7 @@ import type { SearchParams, UpsertParams } from '../actions/operations';
  */
 describe('Vector Store operations integration', () => {
 	let dir: string;
-	let store: JSVectorStore;
+	let store: VectorStoreLike;
 	const dim = 8;
 
 	/** Upsert helper: builds UpsertParams from raw inputs. */
@@ -45,6 +45,7 @@ describe('Vector Store operations integration', () => {
 			metric,
 			filter,
 			dimSlice,
+			useIndex: false,
 			dimension: dim,
 		};
 		return ops.search(store, params, itemIndex);

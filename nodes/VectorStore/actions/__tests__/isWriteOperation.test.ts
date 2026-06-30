@@ -15,11 +15,21 @@ describe('isWriteOperation', () => {
 		expect(isWriteOperation('drop')).toBe(true);
 	});
 
+	it('classifies the ANN index build/drop as writes (they mutate <col>.ivf.json)', () => {
+		expect(isWriteOperation('buildAnnIndex')).toBe(true);
+		expect(isWriteOperation('dropAnnIndex')).toBe(true);
+	});
+
 	it('classifies the four read operations as reads', () => {
 		expect(isWriteOperation('search')).toBe(false);
 		expect(isWriteOperation('get')).toBe(false);
 		expect(isWriteOperation('count')).toBe(false);
 		expect(isWriteOperation('collections')).toBe(false);
+	});
+
+	it('classifies Matryoshka Search and Search Across as reads', () => {
+		expect(isWriteOperation('matryoshkaSearch')).toBe(false);
+		expect(isWriteOperation('searchAcross')).toBe(false);
 	});
 
 	it('defaults unknown ids to read (the router rejects unknowns separately)', () => {

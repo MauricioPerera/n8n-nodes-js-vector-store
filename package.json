@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-js-vector-store",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "n8n community node to store, search and manage vectors on the host filesystem via js-vector-store",
     "license": "MIT",
     "homepage": "https://github.com/MauricioPerera/n8n-nodes-js-vector-store#readme",
