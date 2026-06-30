@@ -1,0 +1,13 @@
+dist
+node_modules
+*.tgz
+.dev-*-report.md
+.dev-*.txt
+.dev-*-log.txt
+.spike
+.spike-report.md
+.spike-task.txt
+.spike-log.txt
+.install*
+.npmrc
+npm-debug.log*

@@ -1,0 +1,58 @@
+{
+    "name": "n8n-nodes-js-vector-store",
+    "version": "1.0.0",
+    "description": "n8n community node to store, search and manage vectors on the host filesystem via js-vector-store",
+    "license": "MIT",
+    "homepage": "https://github.com/MauricioPerera/n8n-nodes-js-vector-store#readme",
+    "keywords": [
+        "n8n-community-node-package"
+    ],
+    "author": {
+        "name": "Mauricio Perera",
+        "email": "mauricio.perera@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MauricioPerera/n8n-nodes-js-vector-store.git"
+    },
+    "scripts": {
+        "build": "n8n-node build",
+        "build:watch": "tsc --watch",
+        "dev": "n8n-node dev",
+        "lint": "n8n-node lint",
+        "lint:fix": "n8n-node lint --fix",
+        "release": "n8n-node release",
+        "prepublishOnly": "n8n-node prerelease"
+    },
+    "files": [
+        "dist"
+    ],
+    "n8n": {
+        "n8nNodesApiVersion": 1,
+        "strict": true,
+        "credentials": [
+            "dist/credentials/VectorStoreApi.credentials.js"
+        ],
+        "nodes": [
+            "dist/nodes/VectorStore/VectorStore.node.js"
+        ]
+    },
+    "devDependencies": {
+        "@n8n/node-cli": "*",
+        "@types/jest": "^30.0.0",
+        "@types/node": "^26.0.1",
+        "eslint": "9.32.0",
+        "jest": "^30.4.2",
+        "n8n-workflow": "^2.28.1",
+        "prettier": "3.6.2",
+        "release-it": "^19.0.4",
+        "ts-jest": "^29.4.11",
+        "typescript": "5.9.2"
+    },
+    "peerDependencies": {
+        "n8n-workflow": "*"
+    },
+    "dependencies": {
+        "js-vector-store": "^1.0.0"
+    }
+}
